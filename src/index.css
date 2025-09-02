@@ -1,0 +1,78 @@
+@import url("https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&display=swap");
+
+:root {
+  /* Light theme */
+    --color-logo-bg:#7488aa;
+  --color-bg: #ffffff;
+  --color-text: #11172c;
+  --color-primary: #7fb7f0;
+  --color-header-bg: var(--color-primary);
+  --font-base: 'Google Sans Code', monospace;
+}
+
+[data-theme="dark"] {
+  --color-logo-bg:#3f4e68;
+  --color-bg: #c6d5ff;
+  --color-text: #ffffff;
+  --color-primary: #4a90e2;
+  --color-header-bg: var(--color-primary);
+  --font-base: 'Google Sans Code', monospace;
+}
+
+/* Apply to body */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-base);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.header{
+  background-color: var(--color-logo-bg);
+  color: var(--color-text);
+  flex: 1;
+}
+
+.main {
+  padding: 20px;  
+  border-width: 5px;
+}
+
+.search {
+  background-color: var(--color-header-bg);
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.tableSearch {
+  background-color: var(--color-header-bg);
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 600;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+html, body {
+  overflow: auto;
+}
+
+/* hide scrollbar */
+body::-webkit-scrollbar {
+  display: none;
+}
+
+.loginElement {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+}
+
+.loginElement > * {
+  width: 100%;
+  max-width: 600px;
+}
