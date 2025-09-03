@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import '@mantine/core/styles.css'
 import '@mantine/dates/styles.css';
+import '@mantine/notifications/styles.css';
 import { MantineProvider } from '@mantine/core'
 import { BrowserRouter } from 'react-router-dom'
 

@@ -1,10 +1,11 @@
 import { useEffect, useState, forwardRef } from "react";
-import { Badge, Card, Table, Title, Flex, Modal } from "@mantine/core";
+import { Badge, Card, Table, Title, Flex, Modal, Button } from "@mantine/core";
 import axios from "axios";
 import { useImperativeHandle } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import AddingForm from "@/components/addingForm";
 import SearchBar from "@/components/search";
+import { notifications } from "@mantine/notifications";
 
 const AdminPaperlist = forwardRef((Prop, ref) => {
   const [opened, { open, close }] = useDisclosure();
@@ -16,6 +17,7 @@ const AdminPaperlist = forwardRef((Prop, ref) => {
   useImperativeHandle(ref, () => ({
     enableModal: () => {
       setModifying(false);
+      setSelectedId(null);
       open();
     },
   }));
@@ -67,6 +69,15 @@ const AdminPaperlist = forwardRef((Prop, ref) => {
     open();
   };
 
+  const closeModal = () => {
+    close();
+    notifications.show({
+      title: "Successful",
+      message: "Successfully deleted paper",
+      autoClose: 5000,
+    });
+  };
+
   const rows = (papers || []).map((paper) => (
     <Table.Tr key={paper.id} onClick={() => handleClick(paper.id)}>
       <Table.Td>{paper.id}</Table.Td>
@@ -114,8 +125,13 @@ const AdminPaperlist = forwardRef((Prop, ref) => {
         </Table.ScrollContainer>
       </Card>
 
-      <Modal opened={opened} onClose={close} title={modifying ? "Edit Manuscript" : "Add Manuscript"} centered>
-        <AddingForm selectedID={selectedId} />
+      <Modal
+        opened={opened}
+        onClose={close}
+        title={modifying ? "Edit Manuscript" : "Add Manuscript"}
+        centered
+      >
+        <AddingForm selectedID={selectedId} closeModal={closeModal} />
       </Modal>
     </>
   );

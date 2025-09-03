@@ -7,11 +7,15 @@ import {
   Flex,
   FileInput,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
+import ConfirmDeleteModal from "./confirmModal";
 
-const AddingForm = ({ onSubmit, selectedID }) => {
+const AddingForm = ({ closeModal ,selectedID }) => {
+  const [ opened, {open, close}] = useDisclosure();
   const [modified, setModified] = useState(false);
+  const [isNew, setIsNew] = useState(true);
   const [authors, setAuthors] = useState([{ id: "", name: "" }]);
   const [tags, setTags] = useState([{ id: "", name: "" }]);
   const [formData, setFormData] = useState({
@@ -37,7 +41,15 @@ const AddingForm = ({ onSubmit, selectedID }) => {
       .catch((error) => console.error("Error fetching tags:", error));
   }, []);
   useEffect(() => {
-    if (!selectedID) return;
+    if (!selectedID) {
+      axios
+        .get("/api/papers/newID")
+        .then((response) => {
+          setFormData((prev) => ({ ...prev, id: response.data.id }));
+        })
+        .catch((error) => console.error("Error fetching new ID:", error));
+      return;
+    }
     axios
       .get(`/api/papers/${selectedID}`)
       .then((response) => {
@@ -55,6 +67,7 @@ const AddingForm = ({ onSubmit, selectedID }) => {
       })
       .catch((error) => console.error("Error fetching authors:", error));
     setModified(true);
+    setIsNew(false);
   }, [selectedID]);
 
   const handleChange = (field, value) => {
@@ -67,7 +80,19 @@ const AddingForm = ({ onSubmit, selectedID }) => {
       // Handle modified state
     }
     e.preventDefault();
-    onSubmit(formData);
+  };
+
+  const openDeleteModal = () => {
+    open();
+  };
+
+  const handleDelete = () => {
+    close();
+    axios.delete(`/api/papers/${formData.id}`)
+      .catch((error) => {
+        console.error("Error deleting paper:", error);
+      });
+      closeModal();
   };
 
   return (
@@ -80,7 +105,7 @@ const AddingForm = ({ onSubmit, selectedID }) => {
         placeholder="Enter ID"
         value={formData.id}
         onChange={(e) => handleChange("id", e.target.value)}
-        required
+        disabled
       />
       <TextInput
         label="Title"
@@ -122,10 +147,25 @@ const AddingForm = ({ onSubmit, selectedID }) => {
       <FileInput clearable label="Upload files" placeholder="Upload files" />
 
       <Flex justify="center" gap="sm" wrap="wrap">
-        <Group position="right" mt="md">
-          <Button type="submit">Submit</Button>
-        </Group>
+        {isNew ? (
+          <Group position="right" mt="md">
+            <Button type="submit">Submit</Button>
+          </Group>
+        ) : (
+          <Group justify="space-between" mt="md" style={{ width: '100%' }}>
+            <Button type="button" color="red" onClick={openDeleteModal}>
+              Delete
+            </Button>
+            <Button type="submit">Update</Button>
+          </Group>
+        )}
       </Flex>
+      <ConfirmDeleteModal
+        opened={opened}
+        onClose={close}
+        onConfirm={handleDelete}
+        recordName={formData.title}
+      />
     </form>
   );
 };
