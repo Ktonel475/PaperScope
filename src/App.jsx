@@ -10,6 +10,7 @@ import Dashboard from "@/pages/Admin/dashboard";
 import MainLayout from "@/pages/mainlayout";
 import Login from "@/pages/Admin/login";
 import NotFoundPage from "@/pages/NotFoundPage";
+import AboutPage from "@/pages/aboutPage";
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/paper/:id" element={<PaperDetail />} />
         <Route path="/search" element={<PaperSearch />} />
       </Route>
+      <Route path="/about" element={<AboutPage />} />
       <Route path="/login" element={<Login />} />
       <Route
         path="/admin"

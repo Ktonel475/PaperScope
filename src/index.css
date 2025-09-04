@@ -4,7 +4,8 @@
   /* Light theme */
     --color-logo-bg:#7488aa;
   --color-bg: #ffffff;
-  --color-text: #11172c;
+  --backgroundGradient: linear-gradient(135deg, #74ebd5, #acb6e5);
+  --color-text: #182349;
   --color-primary: #7fb7f0;
   --color-header-bg: var(--color-primary);
   --font-base: 'Google Sans Code', monospace;
@@ -22,6 +23,7 @@
 /* Apply to body */
 body {
   background-color: var(--color-bg);
+  background: var(--backgroundGradient);
   color: var(--color-text);
   font-family: var(--font-base);
   margin: 0;
@@ -75,4 +77,33 @@ body::-webkit-scrollbar {
 .loginElement > * {
   width: 100%;
   max-width: 600px;
+}
+
+.paper-list {
+  padding: 20px;
+  padding-left: 100px;
+  padding-right: 100px;
+}
+
+.paper-detail {
+  padding: 20px;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+.about-page {  
+  min-height: 100vh; /* full screen height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #74ebd5, #acb6e5); /* gradient background */
+  padding: 20px;
+}
+
+.about-card {
+  width: 100%;
+  max-width: 600px; /* keep it readable */
+  border-radius: 16px;
+  background-color: white; /* card background */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }

@@ -7,6 +7,7 @@ export default function Footer({ hideBorder }) {
         borderTop: hideBorder ? "none" : "1px solid var(--mantine-color-gray-3)",
         paddingTop: '1rem',
         paddingBottom: '1rem',
+        backgroundColor: 'var(--mantine-color-gray-0)',
       }}
     >
       <Container size="lg">
@@ -19,10 +20,7 @@ export default function Footer({ hideBorder }) {
             <Anchor href="/about" size="sm" c="dimmed">
               About
             </Anchor>
-            <Anchor href="/contact" size="sm" c="dimmed">
-              Contact
-            </Anchor>
-            <Anchor href="https://github.com" target="_blank" size="sm" c="dimmed">
+            <Anchor href="https://github.com/ktonel475" target="_blank" size="sm" c="dimmed">
               GitHub
             </Anchor>
           </Group>

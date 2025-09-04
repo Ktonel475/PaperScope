@@ -7,7 +7,7 @@ function SearchForm({ filterMode, onSearch }) {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [year, setYear] = useState(null);
-  const [sort, setSort] = useState("relevance");
+  const [sort, setSort] = useState((filterMode ? "id" : "relevance"));
   const [years, setYears] = useState([2025, 2024, 2023]);
   useEffect(() => {
     const fetchYears = async () => {
@@ -82,14 +82,16 @@ function SearchForm({ filterMode, onSearch }) {
           <Select
             label="Sort by"
             data={[
-              { value: "relevance", label: "Relevance" },
+              filterMode
+                ? { value: "id", label: "ID" }
+                : { value: "relevance", label: "Relevance" },
               { value: "year_desc", label: "Year ↓" },
               { value: "year_asc", label: "Year ↑" },
               { value: "title_asc", label: "Title A–Z" },
               { value: "title_desc", label: "Title Z–A" },
             ]}
             value={sort}
-            onChange={(v) => setSort(v || "relevance")}
+            onChange={(v) => setSort(v)}
           />
         </Grid.Col>
 

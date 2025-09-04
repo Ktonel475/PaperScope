@@ -8,11 +8,11 @@ import {
   Pagination,
   Loader,
   Stack,
-  Text
+  Text,
 } from "@mantine/core";
 import { FiInfo } from "react-icons/fi";
 import PaperCard from "@/components/paperInfo";
-import "./index.css";
+import Footer from "@/components/footer";
 
 function PaperList() {
   const [searchParams] = useSearchParams();
@@ -71,7 +71,7 @@ function PaperList() {
   if (papers.length === 0) {
     // No results state
     return (
-       <Flex justify="center" align="center" style={{ minHeight: "50vh" }}>
+      <Flex justify="center" align="center" style={{ minHeight: "50vh" }}>
         <Stack align="center" spacing="md">
           <FiInfo size={48} color="#868e96" />
           <Text size="xl" weight={500} color="dimmed" align="center">
@@ -91,32 +91,35 @@ function PaperList() {
   const currentPapers = papers.slice(indexOfFirstPaper, indexOfLastPaper);
 
   return (
-    <div className="main">
-      <Container fluid>
-        <SimpleGrid cols={1} spacing="lg">
-          {currentPapers.map((paper) => (
-            <div
-              key={paper.id}
-              onClick={() => navigate(`/paper/${paper.id}`)}
-              style={{ cursor: "pointer" }}
-            >
-              <PaperCard paper={paper} />
-            </div>
-          ))}
-        </SimpleGrid>
+    <>
+      <div className="main">
+        <Container fluid>
+          <SimpleGrid cols={1} spacing="lg">
+            {currentPapers.map((paper) => (
+              <div
+                key={paper.id}
+                onClick={() => navigate(`/paper/${paper.id}`)}
+                style={{ cursor: "pointer" }}
+              >
+                <PaperCard paper={paper} />
+              </div>
+            ))}
+          </SimpleGrid>
 
-        <Flex justify="center" mt="lg">
-          <Pagination
-            total={Math.ceil(papers.length / papersPerPage)}
-            value={currentPage}
-            onChange={(page) => {
-              setCurrentPage(page);
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-          />
-        </Flex>
-      </Container>
-    </div>
+          <Flex justify="center" mt="lg">
+            <Pagination
+              total={Math.ceil(papers.length / papersPerPage)}
+              value={currentPage}
+              onChange={(page) => {
+                setCurrentPage(page);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            />
+          </Flex>
+        </Container>
+      </div>
+      <Footer />
+    </>
   );
 }
 

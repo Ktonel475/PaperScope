@@ -7,7 +7,6 @@ import {
   Flex,
   FileInput,
   Textarea,
-  Grid,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { DateInput } from "@mantine/dates";
@@ -97,8 +96,8 @@ const AddingForm = ({ closeModal, selectedID }) => {
           title: formData.title || undefined,
           abstract: formData.abstract || undefined,
           date: formData.date || undefined,
-          authorIds: formData.authors || [], // must be array of user IDs
-          tagNames: formData.tags || [], // must be array of strings
+          authorIds: formData.authors || [],
+          tagNames: formData.tags || [],
         })
         .then(() => {
           closeModal();
@@ -113,8 +112,8 @@ const AddingForm = ({ closeModal, selectedID }) => {
           title: formData.title || undefined,
           abstract: formData.abstract || undefined,
           date: formData.date || undefined,
-          authorIds: formData.authors || [], // must be array of user IDs
-          tagNames: formData.tags || [], // must be array of strings
+          authorIds: formData.authors || [],
+          tagNames: formData.tags || [],
         })
         .then(() => {
           closeModal();
@@ -161,10 +160,10 @@ const AddingForm = ({ closeModal, selectedID }) => {
         label="Authors"
         placeholder="Select authors"
         data={authors.map((author) => ({
-          value: author.id.toString(), // convert ID to string for MultiSelect
+          value: author.id.toString(),
           label: author.name,
         }))}
-        value={formData.authors.map(String)} // convert selected IDs to strings
+        value={formData.authors.map(String)}
         onChange={(value) => handleChange("authors", value)}
         searchable
         required
