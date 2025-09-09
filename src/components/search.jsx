@@ -97,7 +97,7 @@ function SearchForm({ filterMode, onSearch }) {
 
         <Grid.Col span={{ base: 12, sm: 12, md: 2 }}>
           <Button fullWidth onClick={handleSearchClick} radius="xl" size="md">
-            Search
+            {filterMode ? "Filter" : "Search"}
           </Button>
         </Grid.Col>
       </Grid>

@@ -71,7 +71,11 @@ function PaperList() {
               <div
                 key={paper.id}
                 onClick={() => navigate(`/paper/${paper.id}`)}
-                style={{ cursor: "pointer" }}
+                style={{
+                  cursor: "pointer",
+                  transition: "transform 0.3s, box-shadow 0.3s",
+                }}
+                className="paper-card"
               >
                 <PaperCard paper={paper} />
               </div>

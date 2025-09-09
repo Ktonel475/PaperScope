@@ -20,7 +20,7 @@ export default function Footer({ hideBorder }) {
             <Anchor href="/about" size="sm" c="dimmed">
               About
             </Anchor>
-            <Anchor href="https://github.com/ktonel475" target="_blank" size="sm" c="dimmed">
+            <Anchor href="https://github.com/ktonel475/PaperScope" target="_blank" size="sm" c="dimmed">
               GitHub
             </Anchor>
           </Group>

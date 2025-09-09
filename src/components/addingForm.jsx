@@ -23,6 +23,8 @@ const AddingForm = ({ closeModal, selectedID }) => {
     id: 0,
     title: "",
     authors: [],
+    affiliation: "",
+    publication: "",
     tags: [],
     date: new Date().toISOString().split("T")[0],
     abstract: "",
@@ -65,6 +67,8 @@ const AddingForm = ({ closeModal, selectedID }) => {
           authors: response.data.authors?.map((a) => a.user?.id || 0) || [],
           tags: response.data.tags?.map((t) => t.tag?.name || "") || [],
           abstract: response.data.abstract || "",
+          affiliation: response.data.affiliation || "",
+          publication: response.data.publication || "",
           files: response.data.files?.map((f) => f.filename || "") || [],
         }));
       })
@@ -95,6 +99,8 @@ const AddingForm = ({ closeModal, selectedID }) => {
         .patch(`/api/papers/${Number(formData.id)}`, {
           title: formData.title || undefined,
           abstract: formData.abstract || undefined,
+          affiliation: formData.affiliation || undefined,
+          publication: formData.publication || undefined,
           date: formData.date || undefined,
           authorIds: formData.authors || [],
           tagNames: formData.tags || [],
@@ -114,6 +120,8 @@ const AddingForm = ({ closeModal, selectedID }) => {
           date: formData.date || undefined,
           authorIds: formData.authors || [],
           tagNames: formData.tags || [],
+          affiliation: formData.affiliation || undefined,
+          publication: formData.publication || undefined,
         })
         .then(() => {
           closeModal();
@@ -167,6 +175,18 @@ const AddingForm = ({ closeModal, selectedID }) => {
         onChange={(value) => handleChange("authors", value)}
         searchable
         required
+      />
+      <TextInput
+        label="Affiliation"
+        placeholder="Enter Affiliation"
+        value={formData.affiliation}
+        onChange={(e) => handleChange("affiliation", e.target.value)}
+      />
+      <TextInput
+        label="Publication"
+        placeholder="Enter Publication"
+        value={formData.publication}
+        onChange={(e) => handleChange("publication", e.target.value)}
       />
       <MultiSelect
         label="Tags"

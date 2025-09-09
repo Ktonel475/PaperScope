@@ -85,6 +85,8 @@ const AdminPaperlist = forwardRef((Prop, ref) => {
       <Table.Td>
         {paper.authors?.map((a) => a.user?.name || "").join(", ") || "N/A"}
       </Table.Td>
+      <Table.Td>{paper.affiliation || "N/A"}</Table.Td>
+      <Table.Td>{paper.publication || "N/A"}</Table.Td>
       <Table.Td>
         {paper.tags?.map((tag, idx) => (
           <Badge key={idx} color="blue" variant="light">
@@ -115,6 +117,8 @@ const AdminPaperlist = forwardRef((Prop, ref) => {
                 <Table.Th>ID</Table.Th>
                 <Table.Th>Title</Table.Th>
                 <Table.Th>Author</Table.Th>
+                <Table.Th>Affiliation</Table.Th>
+                <Table.Th>Publication</Table.Th>
                 <Table.Th>Tags</Table.Th>
                 <Table.Th>Date</Table.Th>
                 <Table.Th>File</Table.Th>

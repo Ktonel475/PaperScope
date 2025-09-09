@@ -1,5 +1,4 @@
 import { Outlet } from "react-router-dom";
-import Footer from "@/components/footer";
 import SearchBar from "@/components/search";
 import Header from "@/components/header";
 import { AppShell } from "@mantine/core";

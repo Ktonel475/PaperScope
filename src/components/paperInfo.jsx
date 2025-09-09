@@ -7,7 +7,7 @@ function PaperCard({ paper }) {
       <Stack spacing="sm">
         <Title order={4}>{paper.title}</Title>
 
-        <Text size="md" c="dimmed">
+        <Text size="md" c="dimmed" className="ColorText">
           {paper.authors.map((author) => author.user.name).join(", ")}
         </Text>
 

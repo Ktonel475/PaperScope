@@ -72,98 +72,83 @@ export default function PaperDetail() {
   return (
     <AppShell>
       <AppShell.Main>
-      <div className="paper-detail">
-        <Card shadow="lg" padding="xl" radius="md">
-          <Grid gutter="xl">
-            <Grid.Col span={{ base: 12, md: 10 }}>
-              <Title order={2}>{paperData.title || "Untitled Paper"}</Title>
+        <div className="paper-detail">
+          <Card shadow="lg" padding="xl" radius="md">
+            <Grid gutter="xl">
+              <Grid.Col span={{ base: 12, md: 10 }}>
+                <Title order={2}>{paperData.title || "Untitled Paper"}</Title>
 
-              <Text size="sm" mt="sm">
-                <strong>Authors:</strong>{" "}
-                {paperData.authors?.map((a) => a.user?.name || "").join(", ") ||
-                  "N/A"}
-              </Text>
+                <Group mt="sm">
+                  {paperData.tags?.map((tag, idx) => (
+                    <Badge key={idx} color="blue" variant="light">
+                      {tag.tag?.name || ""}
+                    </Badge>
+                  ))}
+                </Group>
 
-              <Text size="sm" mt="xs">
-                <strong>Affiliation:</strong> {paperData.affiliation || "N/A"}
-              </Text>
+                <Text size="sm" mt="sm">
+                  <strong>Authors:</strong>{" "}
+                  {paperData.authors
+                    ?.map((a) => a.user?.name || "")
+                    .join(", ") || "N/A"}
+                </Text>
 
-              <Divider my="sm" />
+                <Text size="sm" mt="xs">
+                  <strong>Affiliation:</strong> {paperData.affiliation || "N/A"}
+                </Text>
+                <Text size="sm" mt="xs">
+                  <strong>Publication:</strong> {paperData.publication || "N/A"}
+                </Text>
+                <Text size="sm" mt="xs">
+                  <strong>Year:</strong>{" "}
+                  {paperData.date
+                    ? new Date(paperData.date).getFullYear()
+                    : "N/A"}
+                </Text>
 
-              <Text size="sm" mt="sm">
-                <strong>Abstract:</strong>{" "}
-                {paperData.abstract || "No abstract available."}
-              </Text>
+                <Divider my="sm" />
 
-              <Group mt="sm">
-                {paperData.tags?.map((tag, idx) => (
-                  <Badge key={idx} color="blue" variant="light">
-                    {tag.tag?.name || ""}
-                  </Badge>
-                ))}
-              </Group>
+                <Text size="sm" mt="sm">
+                  <strong>Abstract:</strong>{" "}
+                  {paperData.abstract || "No abstract available."}
+                </Text>
+              </Grid.Col>
 
-              <Divider my="sm" />
-
-              <Text>
-                <strong>Publication:</strong> {paperData.publication || "N/A"}
-              </Text>
-              <Text>
-                <strong>Year:</strong>{" "}
-                {paperData.date
-                  ? new Date(paperData.date).getFullYear()
-                  : "N/A"}
-              </Text>
-              <Text>
-                <strong>DOI:</strong>{" "}
-                {paperData.doi ? (
-                  <Anchor
-                    href={`https://doi.org/${paperData.doi}`}
-                    target="_blank"
-                  >
-                    {paperData.doi}
-                  </Anchor>
-                ) : (
-                  "N/A"
-                )}
-              </Text>
-            </Grid.Col>
-
-            <Grid.Col span={{ base: 12, md: 2 }}>
-              <Box
-                style={{
-                  position: "sticky",
-                  top: "20px",
-                  padding: "1rem",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "8px",
-                  backgroundColor: "#fafafa",
-                }}
-              >
-                <Title order={4} mb="sm">
-                  📥 Downloads
-                </Title>
-                <List spacing="sm">
-                  {paperData.downloads?.length > 0 ? (
-                    paperData.downloads.map((file, idx) => (
-                      <List.Item
-                        key={idx}
-                        icon={<FaDownload style={{ color: "#1c7ed6" }} />}
-                      >
-                        <Anchor href={file.url} download>
-                          {file.name || "Unnamed file"}
-                        </Anchor>
-                      </List.Item>
-                    ))
-                  ) : (
-                    <Text size="sm">No downloads available.</Text>
-                  )}
-                </List>
-              </Box>
-            </Grid.Col>
-          </Grid>
-        </Card>
-      </div>
+              <Grid.Col span={{ base: 12, md: 2 }}>
+                <Box
+                  style={{
+                    position: "sticky",
+                    top: "20px",
+                    padding: "1rem",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "8px",
+                    backgroundColor: "#fafafa",
+                  }}
+                >
+                  <Title order={4} mb="sm">
+                    📥 Downloads
+                  </Title>
+                  <List spacing="sm">
+                    {paperData.files?.length > 0 ? (
+                      paperData.files.map((file, idx) => (
+                        <List.Item
+                          key={idx}
+                          icon={<FaDownload style={{ color: "#1c7ed6" }} />}
+                        >
+                          <Anchor href={file.url} download>
+                            {file.filename || "Unnamed file"}
+                          </Anchor>
+                        </List.Item>
+                      ))
+                    ) : (
+                      <Text size="sm">No downloads available.</Text>
+                    )}
+                  </List>
+                </Box>
+              </Grid.Col>
+            </Grid>
+          </Card>
+        </div>
       </AppShell.Main>
       <AppShell.Footer>
         <Footer />
