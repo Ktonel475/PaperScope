@@ -7,11 +7,15 @@ import {
   Flex,
   FileInput,
   Textarea,
+  Paper,
+  Anchor,
+  Text,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { DateInput } from "@mantine/dates";
 import axios from "axios";
 import ConfirmDeleteModal from "./confirmModal";
+import { FaDownload, FaTimes } from "react-icons/fa";
 
 const AddingForm = ({ closeModal, selectedID }) => {
   const [opened, { open, close }] = useDisclosure();
@@ -19,6 +23,7 @@ const AddingForm = ({ closeModal, selectedID }) => {
   const [isNew, setIsNew] = useState(true);
   const [authors, setAuthors] = useState([{ id: "", name: "" }]);
   const [tags, setTags] = useState([{ id: "", name: "" }]);
+  const [newFiles, setNewFiles] = useState([]);
   const [formData, setFormData] = useState({
     id: 0,
     title: "",
@@ -30,6 +35,17 @@ const AddingForm = ({ closeModal, selectedID }) => {
     abstract: "",
     files: [],
   });
+
+  const removeNewFile = (index) => {
+    setNewFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleNewFileChange = (selectedFiles) => {
+    if (selectedFiles) {
+      setNewFiles(Array.from(selectedFiles));
+    }
+  };
+
   useEffect(() => {
     axios
       .get("/api/papers/authors")
@@ -79,13 +95,8 @@ const AddingForm = ({ closeModal, selectedID }) => {
 
   const handleChange = (field, value) => {
     if (field === "authors") {
-      console.log("Selected strings from MultiSelect:", value);
       const numericIds = value.map(Number);
-      console.log("Converted to numeric IDs:", numericIds);
       setFormData((prev) => ({ ...prev, [field]: numericIds }));
-    } else if (field === "tags") {
-      console.log("Selected tags:", value);
-      setFormData((prev) => ({ ...prev, [field]: value }));
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
@@ -94,16 +105,30 @@ const AddingForm = ({ closeModal, selectedID }) => {
   const handleSubmit = (e) => {
     if (modified) {
       e.preventDefault();
-      axios;
+
+      const submitData = new FormData();
+
+      // Append regular form fields
+      submitData.append("title", formData.title || "");
+      submitData.append("abstract", formData.abstract || "");
+      submitData.append("affiliation", formData.affiliation || "");
+      submitData.append("publication", formData.publication || "");
+      submitData.append("date", formData.date || "");
+      submitData.append("authorIds", JSON.stringify(formData.authors || []));
+      submitData.append("tagNames", JSON.stringify(formData.tags || []));
+
+      // Append files from formData.files
+      if (formData.files && formData.files.length > 0) {
+        formData.files.forEach((file) => {
+          submitData.append("files", file); // 'files' matches upload.array('files')
+        });
+      }
+
       axios
-        .patch(`/api/papers/${Number(formData.id)}`, {
-          title: formData.title || undefined,
-          abstract: formData.abstract || undefined,
-          affiliation: formData.affiliation || undefined,
-          publication: formData.publication || undefined,
-          date: formData.date || undefined,
-          authorIds: formData.authors || [],
-          tagNames: formData.tags || [],
+        .patch(`/api/papers/${Number(formData.id)}`, submitData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         })
         .then(() => {
           closeModal();
@@ -111,17 +136,32 @@ const AddingForm = ({ closeModal, selectedID }) => {
         .catch((error) => {
           console.error("Error updating paper:", error);
         });
-    }else{
+    } else {
       e.preventDefault();
+
+      const submitData = new FormData();
+
+      // Append regular form fields for POST
+      submitData.append("title", formData.title || "");
+      submitData.append("abstract", formData.abstract || "");
+      submitData.append("date", formData.date || "");
+      submitData.append("authorIds", JSON.stringify(formData.authors || []));
+      submitData.append("tagNames", JSON.stringify(formData.tags || []));
+      submitData.append("affiliation", formData.affiliation || "");
+      submitData.append("publication", formData.publication || "");
+
+      // Append files for POST too
+      if (formData.files && formData.files.length > 0) {
+        formData.files.forEach((file) => {
+          submitData.append("files", file);
+        });
+      }
+
       axios
-        .post("/api/papers", {
-          title: formData.title || undefined,
-          abstract: formData.abstract || undefined,
-          date: formData.date || undefined,
-          authorIds: formData.authors || [],
-          tagNames: formData.tags || [],
-          affiliation: formData.affiliation || undefined,
-          publication: formData.publication || undefined,
+        .post("/api/papers", submitData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         })
         .then(() => {
           closeModal();
@@ -212,7 +252,73 @@ const AddingForm = ({ closeModal, selectedID }) => {
         value={formData.abstract}
         onChange={(e) => handleChange("abstract", e.target.value)}
       />
-      <FileInput clearable label="Upload files" placeholder="Upload files" />
+        {/* Existing files from database */}
+        {formData.files && formData.files.length > 0 && (
+          <Paper p="md" mb="md" withBorder>
+            <Text size="sm" weight={500} mb="xs">
+              Existing Files:
+            </Text>
+            {formData.files.map((file, index) => (
+              <Group key={index} position="apart" mb="xs">
+                <Group>
+                  <Text size="sm">{file.filename}</Text>
+                  {file.size && (
+                    <Text size="xs" color="dimmed">
+                      ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                    </Text>
+                  )}
+                </Group>
+                <Anchor
+                  href={file.url}
+                  download
+                  size="sm"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <FaDownload size={14} />
+                </Anchor>
+              </Group>
+            ))}
+          </Paper>
+        )}
+
+        {/* Upload new files */}
+        <FileInput
+          clearable
+          label="Upload new files"
+          placeholder="Select files to upload"
+          value={newFiles}
+          onChange={handleNewFileChange}
+          multiple
+          accept=".pdf,.doc,.docx,.txt,.md"
+          mb="md"
+        />
+
+        {/* Show selected new files preview */}
+        {newFiles.length > 0 && (
+          <Paper p="md" withBorder>
+            <Text size="sm" weight={500} mb="xs">
+              New files to upload:
+            </Text>
+            {newFiles.map((file, index) => (
+              <Group key={index} position="apart" mb="xs">
+                <Text size="sm">{file.filename}</Text>
+                <Group>
+                  <Text size="xs" color="dimmed">
+                    ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                  </Text>
+                  <Button
+                    size="xs"
+                    color="red"
+                    variant="outline"
+                    onClick={() => removeNewFile(index)}
+                  >
+                    <FaTimes size={12} />
+                  </Button>
+                </Group>
+              </Group>
+            ))}
+          </Paper>
+        )}
       <Flex justify="center" gap="sm" wrap="wrap">
         {isNew ? (
           <Group position="right" mt="md">
