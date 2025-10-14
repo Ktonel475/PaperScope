@@ -19,6 +19,8 @@ import { FaDownload, FaTimes } from "react-icons/fa";
 
 const AddingForm = ({ closeModal, selectedID }) => {
   const [opened, { open, close }] = useDisclosure();
+  const [fileDeleteModalOpened, setFileDeleteModalOpened] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState(null);
   const [modified, setModified] = useState(false);
   const [isNew, setIsNew] = useState(true);
   const [authors, setAuthors] = useState([{ id: "", name: "" }]);
@@ -44,6 +46,38 @@ const AddingForm = ({ closeModal, selectedID }) => {
     if (selectedFiles) {
       setNewFiles(Array.from(selectedFiles));
     }
+  };
+
+  // Open file delete confirmation
+  const openFileDeleteConfirm = (file) => {
+    setFileToDelete(file);
+    setFileDeleteModalOpened(true);
+  };
+
+  // Handle confirmed file deletion
+  const handleConfirmFileDelete = async () => {
+    if (fileToDelete) {
+      try {
+        await axios.delete(`/api/papers/${formData.id}/files/${fileToDelete.id}`);
+        // Remove from local state
+        setFormData((prev) => ({
+          ...prev,
+          files: prev.files.filter((file) => file.id !== fileToDelete.id),
+        }));
+        setFileDeleteModalOpened(false);
+        setFileToDelete(null);
+      } catch (error) {
+        console.error("Error deleting file:", error);
+        setFileDeleteModalOpened(false);
+        setFileToDelete(null);
+      }
+    }
+  };
+
+  // Close file delete modal without deleting
+  const handleCloseFileModal = () => {
+    setFileDeleteModalOpened(false);
+    setFileToDelete(null);
   };
 
   useEffect(() => {
@@ -85,7 +119,7 @@ const AddingForm = ({ closeModal, selectedID }) => {
           abstract: response.data.abstract || "",
           affiliation: response.data.affiliation || "",
           publication: response.data.publication || "",
-          files: response.data.files?.map((f) => f.filename || "") || [],
+          files: response.data.files || [],
         }));
       })
       .catch((error) => console.error("Error fetching authors:", error));
@@ -117,10 +151,10 @@ const AddingForm = ({ closeModal, selectedID }) => {
       submitData.append("authorIds", JSON.stringify(formData.authors || []));
       submitData.append("tagNames", JSON.stringify(formData.tags || []));
 
-      // Append files from formData.files
-      if (formData.files && formData.files.length > 0) {
-        formData.files.forEach((file) => {
-          submitData.append("files", file); // 'files' matches upload.array('files')
+      // Append NEW files only (not existing files)
+      if (newFiles.length > 0) {
+        newFiles.forEach((file) => {
+          submitData.append("files", file);
         });
       }
 
@@ -151,8 +185,8 @@ const AddingForm = ({ closeModal, selectedID }) => {
       submitData.append("publication", formData.publication || "");
 
       // Append files for POST too
-      if (formData.files && formData.files.length > 0) {
-        formData.files.forEach((file) => {
+      if (newFiles.length > 0) {
+        newFiles.forEach((file) => {
           submitData.append("files", file);
         });
       }
@@ -252,65 +286,37 @@ const AddingForm = ({ closeModal, selectedID }) => {
         value={formData.abstract}
         onChange={(e) => handleChange("abstract", e.target.value)}
       />
-        {/* Existing files from database */}
-        {formData.files && formData.files.length > 0 && (
-          <Paper p="md" mb="md" withBorder>
-            <Text size="sm" weight={500} mb="xs">
-              Existing Files:
-            </Text>
+      {formData.files && formData.files.length > 0 && (
+        <>
+          <Text size="sm" weight={500}>
+            Existing Files
+          </Text>
+          <Paper p="sm" mb="sm" withBorder>
             {formData.files.map((file, index) => (
-              <Group key={index} position="apart" mb="xs">
+              <Group key={index} position="apart">
                 <Group>
                   <Text size="sm">{file.filename}</Text>
                   {file.size && (
-                    <Text size="xs" color="dimmed">
+                    <Text size="xs" c="dimmed">
                       ({(file.size / 1024 / 1024).toFixed(2)} MB)
                     </Text>
                   )}
                 </Group>
-                <Anchor
-                  href={file.url}
-                  download
-                  size="sm"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <FaDownload size={14} />
-                </Anchor>
-              </Group>
-            ))}
-          </Paper>
-        )}
-
-        {/* Upload new files */}
-        <FileInput
-          clearable
-          label="Upload new files"
-          placeholder="Select files to upload"
-          value={newFiles}
-          onChange={handleNewFileChange}
-          multiple
-          accept=".pdf,.doc,.docx,.txt,.md"
-          mb="md"
-        />
-
-        {/* Show selected new files preview */}
-        {newFiles.length > 0 && (
-          <Paper p="md" withBorder>
-            <Text size="sm" weight={500} mb="xs">
-              New files to upload:
-            </Text>
-            {newFiles.map((file, index) => (
-              <Group key={index} position="apart" mb="xs">
-                <Text size="sm">{file.filename}</Text>
                 <Group>
-                  <Text size="xs" color="dimmed">
-                    ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                  </Text>
+                  <Anchor
+                    href={file.url}
+                    download
+                    size="sm"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <FaDownload size={14} />
+                  </Anchor>
                   <Button
-                    size="xs"
+                    variant="transparent"
                     color="red"
-                    variant="outline"
-                    onClick={() => removeNewFile(index)}
+                    radius="xl"
+                    size="xs"
+                    onClick={() => openFileDeleteConfirm(file)}
                   >
                     <FaTimes size={12} />
                   </Button>
@@ -318,7 +324,46 @@ const AddingForm = ({ closeModal, selectedID }) => {
               </Group>
             ))}
           </Paper>
-        )}
+        </>
+      )}
+
+      <FileInput
+        clearable
+        label="Upload new files"
+        placeholder="Select files to upload"
+        value={newFiles}
+        onChange={handleNewFileChange}
+        multiple
+        accept=".pdf,.doc,.docx,.txt,.md"
+        mb="md"
+      />
+
+      {/* Show selected new files preview */}
+      {newFiles.length > 0 && (
+        <Paper p="md" withBorder>
+          <Text size="sm" weight={500} mb="xs">
+            New files to upload:
+          </Text>
+          {newFiles.map((file, index) => (
+            <Group key={index} position="apart" mb="xs">
+              <Text size="sm">{file.name}</Text>
+              <Group>
+                <Text size="xs" c="dimmed">
+                  ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                </Text>
+                <Button
+                  size="xs"
+                  color="red"
+                  variant="outline"
+                  onClick={() => removeNewFile(index)}
+                >
+                  <FaTimes size={12} />
+                </Button>
+              </Group>
+            </Group>
+          ))}
+        </Paper>
+      )}
       <Flex justify="center" gap="sm" wrap="wrap">
         {isNew ? (
           <Group position="right" mt="md">
@@ -333,11 +378,21 @@ const AddingForm = ({ closeModal, selectedID }) => {
           </Group>
         )}
       </Flex>
+      
+      {/* Paper Delete Modal */}
       <ConfirmDeleteModal
         opened={opened}
         onClose={close}
         onConfirm={handleDelete}
         recordName={formData.title}
+      />
+      
+      {/* File Delete Modal */}
+      <ConfirmDeleteModal
+        opened={fileDeleteModalOpened}
+        onClose={handleCloseFileModal}
+        onConfirm={handleConfirmFileDelete}
+        recordName={fileToDelete ? fileToDelete.filename : ''}
       />
     </form>
   );

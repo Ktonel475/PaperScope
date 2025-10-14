@@ -10,7 +10,7 @@ export default function Header() {
             <Image
               src={img}
               alt="Logo"
-              maxH="100px"
+              maxh="100px"
               h={100}
               w="auto"
               p={8}
