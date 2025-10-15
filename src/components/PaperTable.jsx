@@ -11,8 +11,12 @@ const AdminPaperlist = forwardRef((Prop, ref) => {
   const [opened, { open, close }] = useDisclosure();
   const [papers, setPapers] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-  const [filter, setFilter] = useState({});
+  const [filter, setFilter] = useState({
+    sort: "id",
+    order: "asc",
+  });
   const [modifying, setModifying] = useState(false);
+  const [key, setKey] = useState(0);
 
   useImperativeHandle(ref, () => ({
     enableModal: () => {
@@ -57,7 +61,7 @@ const AdminPaperlist = forwardRef((Prop, ref) => {
     };
 
     fetchPapers();
-  }, [filter]);
+  }, [filter, key]);
 
   const handleTableFilter = (filters) => {
     setFilter(filters);
@@ -71,6 +75,8 @@ const AdminPaperlist = forwardRef((Prop, ref) => {
 
   const closeModal = () => {
     close();
+    console.log("Closing modal, refreshing paper list");
+    setKey((prev) => prev + 1);
     notifications.show({
       title: "Successful",
       message: "Successfully deleted paper",
@@ -134,6 +140,7 @@ const AdminPaperlist = forwardRef((Prop, ref) => {
         onClose={close}
         title={modifying ? "Edit Manuscript" : "Add Manuscript"}
         centered
+        size="lg"
       >
         <AddingForm selectedID={selectedId} closeModal={closeModal} />
       </Modal>

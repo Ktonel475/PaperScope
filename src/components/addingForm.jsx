@@ -38,6 +38,16 @@ const AddingForm = ({ closeModal, selectedID }) => {
     files: [],
   });
 
+  const getDownloadName = (file) => {
+    if (file.filename) {
+      return file.filename;
+    }
+
+    // Otherwise, create a meaningful name
+    const timestamp = new Date().toISOString().split("T")[0];
+    return `document-${timestamp}.pdf`;
+  };
+
   const removeNewFile = (index) => {
     setNewFiles((prev) => prev.filter((_, i) => i !== index));
   };
@@ -58,7 +68,9 @@ const AddingForm = ({ closeModal, selectedID }) => {
   const handleConfirmFileDelete = async () => {
     if (fileToDelete) {
       try {
-        await axios.delete(`/api/papers/${formData.id}/files/${fileToDelete.id}`);
+        await axios.delete(
+          `/api/papers/${formData.id}/files/${fileToDelete.id}`
+        );
         // Remove from local state
         setFormData((prev) => ({
           ...prev,
@@ -305,7 +317,7 @@ const AddingForm = ({ closeModal, selectedID }) => {
                 <Group>
                   <Anchor
                     href={file.url}
-                    download
+                    download={getDownloadName(file)}
                     size="sm"
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -378,7 +390,7 @@ const AddingForm = ({ closeModal, selectedID }) => {
           </Group>
         )}
       </Flex>
-      
+
       {/* Paper Delete Modal */}
       <ConfirmDeleteModal
         opened={opened}
@@ -386,13 +398,13 @@ const AddingForm = ({ closeModal, selectedID }) => {
         onConfirm={handleDelete}
         recordName={formData.title}
       />
-      
+
       {/* File Delete Modal */}
       <ConfirmDeleteModal
         opened={fileDeleteModalOpened}
         onClose={handleCloseFileModal}
         onConfirm={handleConfirmFileDelete}
-        recordName={fileToDelete ? fileToDelete.filename : ''}
+        recordName={fileToDelete ? fileToDelete.filename : ""}
       />
     </form>
   );
