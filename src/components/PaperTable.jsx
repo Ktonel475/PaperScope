@@ -1,4 +1,4 @@
-import { useEffect, useState, forwardRef } from "react";
+import { useEffect, useState, forwardRef, useRef } from "react";
 import { Badge, Card, Table, Title, Flex, Modal, Button } from "@mantine/core";
 import axios from "axios";
 import { useImperativeHandle } from "react";
@@ -16,7 +16,10 @@ const AdminPaperlist = forwardRef((Prop, ref) => {
     order: "asc",
   });
   const [modifying, setModifying] = useState(false);
-  const [key, setKey] = useState(0);
+  
+  // Use useRef to maintain stable order
+  const papersOrderRef = useRef(new Map());
+  const refreshKeyRef = useRef(0);
 
   useImperativeHandle(ref, () => ({
     enableModal: () => {
@@ -25,6 +28,15 @@ const AdminPaperlist = forwardRef((Prop, ref) => {
       open();
     },
   }));
+
+  // Store original order when papers are first loaded
+  useEffect(() => {
+    if (papers && papers.length > 0) {
+      papers.forEach((paper, index) => {
+        papersOrderRef.current.set(paper.id, index);
+      });
+    }
+  }, [papers]);
 
   useEffect(() => {
     axios
@@ -53,15 +65,21 @@ const AdminPaperlist = forwardRef((Prop, ref) => {
         };
 
         const response = await axios.get("/api/papers/search", { params });
-        setPapers(Array.isArray(response.data) ? response.data : []);
+        const fetchedPapers = Array.isArray(response.data) ? response.data : [];
+        
+        // Store order for newly fetched papers
+        fetchedPapers.forEach((paper, index) => {
+          papersOrderRef.current.set(paper.id, index);
+        });
+        
+        setPapers(fetchedPapers);
       } catch (error) {
         console.error("Error fetching papers:", error);
         setPapers([]);
       }
     };
-
     fetchPapers();
-  }, [filter, key]);
+  }, [filter]); // Use ref value instead of state
 
   const handleTableFilter = (filters) => {
     setFilter(filters);
@@ -76,15 +94,47 @@ const AdminPaperlist = forwardRef((Prop, ref) => {
   const closeModal = () => {
     close();
     console.log("Closing modal, refreshing paper list");
-    setKey((prev) => prev + 1);
+    
+    // Force refresh using ref instead of state
+    refreshKeyRef.current += 1;
+    
+    // Re-fetch data while maintaining order
+    axios
+      .get("/api/papers")
+      .then((response) => {
+        const updatedPapers = response.data;
+        
+        // Maintain existing order for papers that were already present
+        const sortedPapers = [...updatedPapers].sort((a, b) => {
+          const orderA = papersOrderRef.current.get(a.id) ?? Number.MAX_SAFE_INTEGER;
+          const orderB = papersOrderRef.current.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+          return orderA - orderB;
+        });
+        
+        // Update the order reference with new indices
+        sortedPapers.forEach((paper, index) => {
+          papersOrderRef.current.set(paper.id, index);
+        });
+        
+        setPapers(sortedPapers);
+      })
+      .catch((error) => console.error("Error refreshing papers:", error));
+
     notifications.show({
       title: "Successful",
-      message: "Successfully deleted paper",
+      message: "Operation completed successfully",
       autoClose: 5000,
     });
   };
 
-  const rows = (papers || []).map((paper) => (
+  // Sort papers based on stored order before rendering
+  const sortedPapers = papers ? [...papers].sort((a, b) => {
+    const orderA = papersOrderRef.current.get(a.id) ?? Number.MAX_SAFE_INTEGER;
+    const orderB = papersOrderRef.current.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+    return orderA - orderB;
+  }) : [];
+
+  const rows = sortedPapers.map((paper) => (
     <Table.Tr key={paper.id} onClick={() => handleClick(paper.id)}>
       <Table.Td>{paper.id}</Table.Td>
       <Table.Td>{paper.title}</Table.Td>
