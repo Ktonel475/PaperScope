@@ -92,7 +92,7 @@ function PaperList() {
 
   return (
     <>
-      <div className="main">
+      <div className="paper-list">
         <Container fluid>
           <SimpleGrid cols={1} spacing="lg">
             {currentPapers.map((paper) => (
