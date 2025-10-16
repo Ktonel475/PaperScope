@@ -7,8 +7,8 @@ import { useRef } from "react";
 export default function Demo() {
   const ref = useRef(null);
   return (
-    <AppShell header={{ height: 76 }} padding="md">
-      <AppShell.Header height={76}>
+    <AppShell header={{ height: 100 }} padding="md">
+      <AppShell.Header height={100}>
         <Header />
       </AppShell.Header>
 

@@ -13,7 +13,7 @@ export default function Footer({ hideBorder }) {
       <Container size="lg">
         <Group justify="space-between" align="center">
           <Text size="sm" c="dimmed">
-            © {new Date().getFullYear()} Paper Search. All rights reserved.
+            © {new Date().getFullYear()} PaperScope. All rights reserved.
           </Text>
 
           <Group gap="md">

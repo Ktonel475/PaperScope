@@ -37,6 +37,16 @@ export default function PaperDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const getDownloadName = (file) => {
+    if (file.filename) {
+      return file.filename;
+    }
+
+    // Otherwise, create a meaningful name
+    const timestamp = new Date().toISOString().split("T")[0];
+    return `document-${timestamp}.pdf`;
+  };
+
   useEffect(() => {
     const fetchPapers = async () => {
       try {
@@ -135,7 +145,7 @@ export default function PaperDetail() {
                           key={idx}
                           icon={<FaDownload style={{ color: "#1c7ed6" }} />}
                         >
-                          <Anchor href={file.url} download>
+                          <Anchor href={file.url} download={getDownloadName(file)}>
                             {file.filename || "Unnamed file"}
                           </Anchor>
                         </List.Item>

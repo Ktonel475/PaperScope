@@ -5,10 +5,10 @@ import { AppShell } from "@mantine/core";
 import { useHeadroom } from "@mantine/hooks";
 
 export default function MainLayout() {
-  const pinned = useHeadroom({ fixedAt: 50 });
+  const pinned = useHeadroom({ fixedAt: 95 });
   return (
-    <AppShell header={{ height: 180, collapsed: !pinned, offset: false }}>
-      <AppShell.Header height={180}>
+    <AppShell header={{ height: 210, collapsed: !pinned, offset: false }}>
+      <AppShell.Header height={210}>
         <Header />
         <div className="search">
           <SearchBar />
